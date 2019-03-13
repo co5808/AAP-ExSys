@@ -1,4 +1,4 @@
-#207 page
+//207 page
 #define MEMORY_ELEMENT_SIZE 80
 #define MAX_MEMORY_ELEMENTS 40
 #define MAX_RULES           40
@@ -6,7 +6,7 @@
 
 typedef struct memoryElementStruct *memPtr;
 
-#memoryElementStruct Linked List 구조체 선언
+//memoryElementStruct Linked List 구조체 선언
 typedef struct memoryElementStruct 
 {
     int active;
@@ -28,7 +28,7 @@ typedef struct
     int expiration;
 } timerType;
 
-#208 Page _ Global structures Declaration
+//208 Page _ Global structures Declaration
 memoryElementType workingMemory[MAX_MEMORY_ELEMENTS];
 
 ruleType ruleSet[MAX_RULES];
@@ -38,7 +38,7 @@ timerType timers[MAX_RULES];
 int endRun = 0;
 int debug = 0;
 
-#208 page - The rules-based System "main" function.
+//208 page - The rules-based System "main" function.
 int main ( int argc, char *argv[] )
 {
     int opt, ret;
@@ -95,7 +95,7 @@ int main ( int argc, char *argv[] )
     return 0;
 }
 
-#211 page - The file Parsing Function
+//211 page - The file Parsing Function
 int parseFile( char * filename )
 {
     FILE *fp;
@@ -144,7 +144,7 @@ int parseFile( char * filename )
 
             cur = skipWhiteSpace( cur );
 
-            # Parse the antecedents 
+            // Parse the antecedents 
             cur = parseAntecedent ( cur, &ruleSet[ruleIndex])
 
             if (cur == NULL)
@@ -153,12 +153,12 @@ int parseFile( char * filename )
                 break;
             }
 
-            #Should be sitting on the '==>'
+            //Should be sitting on the '==>'
             if ( !strncmp ( cur, "==>", 2))
             {
                 cur = skipWhiteSpace ( cur + 2 );
 
-                #parse the consequents 
+                //parse the consequents 
                 cur = parseConsequent ( cur, &ruleSet[ruleIndex]);
 
                 if ( cur == NULL )
@@ -198,7 +198,7 @@ int parseFile( char * filename )
     return 0;
 }
 
-#213 page Antecedent and Consequent Parsing Function
+//213 page Antecedent and Consequent Parsing Function
 char *parseAntecedent ( char *block, ruleType *rule )
 {
     while ( 1 )
@@ -227,7 +227,7 @@ char *parserConsequent( char* block, ruleType *rule )
     return block;
 }
 
-#214 page - The parseElement Function
+//214 page - The parseElement Function
 char *parseElement ( char *block, memoryElementType **met )
 {
     memoryElementType *element;
@@ -267,7 +267,7 @@ char *parseElement ( char *block, memoryElementType **met )
     return block;
 }
 
-#215page - The whitespace consumer Function
+//215page - The whitespace consumer Function
 char *skipWhiteSpace ( char *block )
 {
     char ch;
@@ -289,7 +289,7 @@ char *skipWhiteSpace ( char *block )
     return block;
 }
 
-#216 page - The interpret Function
+//216 page - The interpret Function
 void interpret ( void )
 {
     int rule;
@@ -337,7 +337,7 @@ int checkRule ( int rule )
     return fire;
 }
 
-#218 page - The Rule Matching Algorithm(checkPattern)
+//218 page - The Rule Matching Algorithm(checkPattern)
 int checkPattern ( int rule, char * arg )
 {
     int ret = 0;
@@ -407,7 +407,7 @@ int checkPattern ( int rule, char * arg )
 
             if ( ret )
             {
-                #Cleanup the replacement string chain
+                //Cleanup the replacement string chain
                 while ( chain )
                 {
                     temp = chain;
@@ -434,3 +434,121 @@ int checkPattern ( int rule, char * arg )
 }
 
 //221 page - Bulding a chain of Elements with addToChain
+void addToChain( char* element )
+{
+    memoryElementType *walker, *newElement;
+
+    newElement = ( memoryElementType * )malloc(sizeof(memoryElementType));
+
+    strcpy( newElement->elemnet, element);
+
+    if ( chain == NULL)
+        chain = newElemnt;
+    else
+    {
+        walker = chain;
+        while ( walker->next )  
+            walker = walker->next;
+        walker->next = newElement;
+    }
+
+    newElement->next = NULL;    
+}
+
+//222 page - Matching Antecedents to Facts in Working Memory with searchWorkingMemory.
+int searchWrokingMemory ( char* term1, char* term2)
+{
+    int ret = 0;
+    int curMem = 0;
+    char wm_term1[ MEMORY_ELEMENT_SIZE + 1 ];
+    char wm_term2[ MEMORY_ELEMENT_SIZE + 1 ];
+
+    while ( 1 )
+    {
+        if ( workingMemory[curMem].active )
+        {
+            sscanf( workingMemory[curMem].element, "(%s %s)", wm_term1, wm_term2 );
+            if ( wm_term2[ strlen( wm_term2 )- 1 ] == ')' )
+                wm_term2[ strlen(wm_term2) - 1 ] = 0;
+
+            if ( ( !strncmp ( term1, wm_term1, strlen( term1 ) ) ) && ( !strncmp ( term2, wm_term2, strlen( term2 ))) )
+            {
+                ret = 1;
+                break;
+            }
+        }
+        curMem++;
+
+        if (curMem == MAX_MEMORY_ELEMENTS )
+            break;
+    }
+    return ret;
+}
+
+//223 page - Firing a Rule with 'fureRule'
+int fireRule ( int rule, const char *arg )
+{
+    int ret; 
+    memoryElementType *walker = ruleSet[rule].consequent;
+    char newCons[ MAX_MEMORY_ELEMENTS + 1 ];
+
+    while ( walker )
+    {
+        if ( !strncmp ( walker->element, "(add", 4))
+        {
+            constructElement ( newCons, walker->element, arg ) ;
+            ret = performAddCommand ( newCons );
+        }
+        else if (!strncmp ( walker->element, "(delete", 7)) {
+            constructElement ( newCons, walker->element, arg )
+            ret - performDeletCommand( newCons );
+        }
+        else if ( !strncmp ( walker->element, "(disable", 8)) {
+            ruleSet[rule].active = 0;
+            ret = 1;
+        }
+        else if ( !strncmp ( walker->element, "(print", 6 )) {
+            ret = performPrintCommand ( walker->element );
+        }
+        else if ( !strncmp ( walker->element, "(enable", 7)) {
+            ret = performEnableCommand( walker->element );
+        }
+        else if ( !strncmp( walker->element, "(quit",5)) {
+            extern int endRun;
+            endRun = 1;
+        }
+        
+        walker = walker->next;
+    }
+    return ret;
+}
+
+// 224 page - Constructing a New Fact Using 'constructElement
+void constructElement( char *new, const char *old, const char *arg )
+{
+    // Find the scond paren
+    old++;
+    while ( *old != '(' )
+        old++;
+    while( ( *old != 0 ) && ( *old !='?') ) 
+        *new++ = *old++;
+    // this was a compete rule ( i.e., no ? element)
+    if ( *old == 0 )
+    {
+        *( --new ) = 0;
+        return ;
+    }
+    else
+    {
+        // copy in the tag
+        while ( *arg != 0 ) 
+            *new++ = *arg++;
+        if ( *( new - 1 ) != ')' )
+            *new++ = ')';
+
+        *new = 0;
+    }
+    return;
+}
+
+// 226 - Adding a new Fact to Working Memory
