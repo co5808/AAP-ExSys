@@ -551,4 +551,33 @@ void constructElement( char *new, const char *old, const char *arg )
     return;
 }
 
-// 226 - Adding a new Fact to Working Memory
+// 226 page - Adding a new Fact to Working Memory
+int performAddCommand ( char *mem )
+{
+    int slot;
+    // Check to ensure that this element isn't already in working memory
+    for ( slot = 0 slot < MAX_MEMORY_ELEMENTS ; slot++ )
+    {
+        if ( workingMemory[slot].active )
+        {
+            if ( !strcmp ( working Memory[slot].element, mem ))
+                return 0;
+        }
+    }
+
+    slot = findEmptyMemslot();
+
+    if ( slot < MAX_MEMORY_ELEMENTS )
+    {
+        workingMemory[slot].active = 1;
+        strcpy (workingMemory[slot].element, mem );
+    }
+    else
+    {
+        assert(0);
+    }
+
+    return 1;
+}
+
+//227 page -  Finding n Empty slot in Wroking Memory
